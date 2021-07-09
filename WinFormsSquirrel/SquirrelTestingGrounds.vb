@@ -3,6 +3,9 @@ Imports System.Reflection
 Imports Squirrel
 
 Public Class SquirrelTestingGrounds
+
+    Dim manager As UpdateManager
+
     Private Async Sub btnUpdate_Click(sender As Object, e As EventArgs) Handles btnUpdate.Click
         Await GetUpdates()
     End Sub
@@ -11,28 +14,33 @@ Public Class SquirrelTestingGrounds
 
         'Dim mg As New Squirrel.UpdateManager.GitHubUpdateManager("")
 
-        Using manager As New UpdateManager("C:\Temp\FabTool\releases")
+        manager = Await UpdateManager.GitHubUpdateManager("https://github.com/DontDoThat21/WinFormsSquirrel")
+        Dim mostRecent = manager.CurrentlyInstalledVersion().ToString()
 
-            If File.Exists("C:\Temp\FabTool\releases\RELEASES") Then
-                Dim lastLine = File.ReadLines("C:\Temp\FabTool\releases\RELEASES").Last()
-
-                Dim sb As String = ""
-                For index = lastLine.IndexOf("-") + 1 To lastLine.LastIndexOf("-") - 1 ' the first space is when the SHA1 of the Squirrel release format stops. Begin pkg.
-                    sb += lastLine(index)
-                Next
-
-                Me.Text = Assembly.GetExecutingAssembly.GetName().Name
-
-                Dim version = sb
-                Me.Text += " " + version
-
-                txtLatestVersion.Text = version
-
-            End If
-
-
+        Dim updateInfo = Await manager.CheckForUpdate()
+        If updateInfo.ReleasesToApply.Count > 0 Then
             Await manager.UpdateApp()
-        End Using
+        End If
+
+
+        'If File.Exists("C:\Temp\FabTool\releases\RELEASES") Then
+
+        'Dim lastLine = File.ReadLines("C:\Temp\FabTool\releases\RELEASES").Last()
+
+        'Dim sb As String = ""
+        'For index = lastLine.IndexOf("-") + 1 To lastLine.LastIndexOf("-") - 1 ' the first space is when the SHA1 of the Squirrel release format stops. Begin pkg.
+        'sb += lastLine(index)
+        'Next
+
+        'Me.Text = Assembly.GetExecutingAssembly.GetName().Name
+
+        'Dim version = sb
+        'Me.Text += " " + version
+
+        'txtLatestVersion.Text = version
+
+        'End If
+
 
     End Function
 
